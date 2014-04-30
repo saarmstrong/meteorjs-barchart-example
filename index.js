@@ -114,20 +114,17 @@ if (Meteor.isClient) {
 
                 }
 
-                // 5) Get the list of Foods sorted by name, and map results to possible colors
-                foods = Foods.find({}, {sort: {name: 1}}).fetch();
+                // 5) Get the list of Foods
+                foods = Foods.find({}, {sort: {votes: -1, name: 1}}).fetch();
 
                 // 6) Map the foods to the possible colors (up to 20 different colors)
                 window.chart.color.domain(foods.map(function(d) { return d.name }));
 
-                // 7) Get list of foods sorted by vote count and 
-                foods = Foods.find({}, {sort: { votes: -1, name: 1 }}).fetch()
-
-                // 8) Map results to the x & y domain of the chart
+                // 7) Map results to the x & y domain of the chart
                 window.chart.x.domain(foods.map(function(d) { return d.name }));
                 window.chart.y.domain([0, d3.max(foods, function(d) { return d.votes; })]);
 
-                // 9) Binding - Bind the food data
+                // 8) Binding - Bind the food data
 
                 // Select the chart bar elements
                 var bar_selector = window.chart.svg.selectAll(".bar")
@@ -137,8 +134,7 @@ if (Meteor.isClient) {
                 var label_selector = window.chart.svg.selectAll(".label")
                     .data(foods, function (d) {return d.name})
 
-
-                // 10) Create a bar element for each food item
+                // 9) Create a bar element for each food item
                 bar_selector
                     .enter().append("rect") // enter the data selection and append a rect for every food element
                     .attr("class", "bar")   // attach a class to each element
@@ -151,7 +147,7 @@ if (Meteor.isClient) {
                         .attr("height", function(d) { return window.chart.height - window.chart.y(d.votes); }) 
                         .style("fill", function(d) { return window.chart.color(d.name);})                       // Fill each bar with the mapped color
 
-                // 11) Create a label (Name + Vote count) for each food item
+                // 10) Create a label (Name + Vote count) for each food item
                 label_selector
                     .enter().append("text")
                     .attr("class", "label")
