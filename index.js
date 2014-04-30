@@ -71,14 +71,12 @@ if (Meteor.isClient) {
                 // Theres some stuff we only want to run once
                 if (Deps.currentComputation.firstRun) {
 
-                    // Set up some dimension and margin data
+                    // 1) Margin and Dimension Data
                     window.chart.margin = {top: 15, right: 5, bottom: 5, left: 5},
                     window.chart.width  = 600 - window.chart.margin.left - window.chart.margin.right,
                     window.chart.height = 120 - window.chart.margin.top - window.chart.margin.bottom;
 
-                    /*
-                    SCALING - Lets make sure our chart elements look nice
-                    */
+                    // 2) Scaling
 
                     /*
                     Set the chart's X scale _ordinally_ so it spaces out the elements evenly.
@@ -99,15 +97,14 @@ if (Meteor.isClient) {
                         .range([window.chart.height-2, 0]);
 
 
+                    // 3) Element Color Ranges
+
                     // Set the chart color range - 20c is a good one
                     window.chart.color = d3.scale.category20c();
 
-                    /*
-                    SELECT and APPEND
-            
-                    Select any charts and append a wrapper class:
+                    // 4) Select and Append a Group
 
-                    */
+                    // Select any charts and append a wrapper class:
                     window.chart.svg = d3.select('#chart')
                             .attr("width", window.chart.width + window.chart.margin.left + window.chart.margin.right)
                             .attr("height", window.chart.height + window.chart.margin.top + window.chart.margin.bottom)
@@ -117,32 +114,31 @@ if (Meteor.isClient) {
 
                 }
 
-                // Get the list of Foods sorted by name, and map results to possible colors
+                // 5) Get the list of Foods sorted by name, and map results to possible colors
                 foods = Foods.find({}, {sort: {name: 1}}).fetch();
 
-                // Map the foods to the possible colors (up to 20 different colors)
+                // 6) Map the foods to the possible colors (up to 20 different colors)
                 window.chart.color.domain(foods.map(function(d) { return d.name }));
 
-                // Get list of foods sorted by vote count and map results to the x & y domain of the chart
+                // 7) Get list of foods sorted by vote count and 
                 foods = Foods.find({}, {sort: { votes: -1, name: 1 }}).fetch()
+
+                // 8) Map results to the x & y domain of the chart
                 window.chart.x.domain(foods.map(function(d) { return d.name }));
                 window.chart.y.domain([0, d3.max(foods, function(d) { return d.votes; })]);
 
-                /*
-                BINDING
+                // 9) Binding - Bind the food data
 
-                Map available data to the selected elements
-                */
-
-                // Bind the foods to the Chart bar elements
+                // Select the chart bar elements
                 var bar_selector = window.chart.svg.selectAll(".bar")
                     .data(foods, function (d) {return d.name})
 
-                // Bind the foods to chart label elements
+                // Select the chart bar labels
                 var label_selector = window.chart.svg.selectAll(".label")
                     .data(foods, function (d) {return d.name})
 
-                // Create the chart elements
+
+                // 10) Create a bar element for each food item
                 bar_selector
                     .enter().append("rect") // enter the data selection and append a rect for every food element
                     .attr("class", "bar")   // attach a class to each element
@@ -155,7 +151,7 @@ if (Meteor.isClient) {
                         .attr("height", function(d) { return window.chart.height - window.chart.y(d.votes); }) 
                         .style("fill", function(d) { return window.chart.color(d.name);})                       // Fill each bar with the mapped color
 
-                // Append a text label to each bar element
+                // 11) Create a label (Name + Vote count) for each food item
                 label_selector
                     .enter().append("text")
                     .attr("class", "label")
